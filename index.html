@@ -173,6 +173,12 @@ function renderPayPal(name,zodiac){
   const container=document.getElementById("paypal-button-container");
   container.innerHTML="";
 
+  // texto informativo antes del pago
+  const info=document.createElement("p");
+  info.className="text-center text-sm mb-2 opacity-80";
+  info.innerText="Para ver la predicción completa debes realizar un pago de 5 dólares";
+  container.appendChild(info);
+
   const btn=document.createElement("a");
   btn.href="https://www.paypal.com/ncp/payment/GN4SPT3DEPUY4";
   btn.target="_blank";
