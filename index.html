@@ -43,7 +43,7 @@
   <div class="flex flex-wrap gap-2 justify-center mb-4">
     <button onclick="setSpread(1)" class="px-3 py-1 bg-purple-700 rounded-lg text-sm">1 Carta</button>
     <button onclick="setSpread(3)" class="px-3 py-1 bg-purple-700 rounded-lg text-sm">3 Cartas</button>
-    <button onclick="setSpread(10)" class="px-3 py-1 bg-purple-700 rounded-lg text-sm">Cruz Celta</button>
+    
   </div>
 
   <div class="mb-4 text-left">
@@ -88,7 +88,8 @@ function getZodiacSign(dateString){
 let currentSpread = 1;
 
 function setSpread(n){
-  currentSpread = n;
+  // limitar a 1 o 3 cartas
+  currentSpread = n === 3 ? 3 : 1;
 }
 
 // predicciones cortas por carta
@@ -103,6 +104,16 @@ const shortPredictions = [
   "Tu energía está cambiando.",
   "Se abre un nuevo camino.",
   "Algo oculto saldrá a la luz."
+];
+
+// imágenes diferentes de tarot
+const tarotImages = [
+  "https://images.unsplash.com/photo-1604881991720-f91add269bed?w=400",
+  "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=400",
+  "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=400",
+  "https://images.unsplash.com/photo-1492724441997-5dc865305da7?w=400",
+  "https://images.unsplash.com/photo-1520975916090-3105956dac38?w=400",
+  "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=400"
 ];
 
 function draw(){
@@ -136,7 +147,7 @@ function draw(){
         <div class='card-inner w-full h-full'>
           <div class='card-front flex items-center justify-center border rounded-xl glow h-full'>🔮</div>
           <div class='card-back flex flex-col items-center justify-center border rounded-xl glow h-full p-3'>
-            <img src='https://images.unsplash.com/photo-1604881991720-f91add269bed?w=400' class='w-full h-20 object-cover rounded mb-2'/>
+            <img src='${tarotImages[Math.floor(Math.random()*tarotImages.length)]}' class='w-full h-20 object-cover rounded mb-2'/>
             <p class='text-xs opacity-70 mb-1'>${zodiac}</p>
             <p class='text-sm text-center'>${shortText}</p>
           </div>
