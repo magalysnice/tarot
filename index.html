@@ -8,14 +8,27 @@
   <script src="https://www.paypal.com/sdk/js?client-id=sb&currency=EUR"></script>
   <style>
     .glow { box-shadow: 0 0 20px rgba(168,85,247,0.6); }
+
     @keyframes shuffle {
       0% { transform: rotate(0deg) scale(1); }
       50% { transform: rotate(10deg) scale(1.1); }
       100% { transform: rotate(0deg) scale(1); }
     }
     .shuffle { animation: shuffle 0.6s infinite; }
+
+    @keyframes fadeIn { from {opacity:0; transform:translateY(10px);} to {opacity:1; transform:translateY(0);} }
     .fade-in { animation: fadeIn 0.6s ease forwards; }
-    @keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
+
+    .card { perspective: 1000px; }
+    .card-inner { transition: transform 0.8s; transform-style: preserve-3d; }
+    .card.flip .card-inner { transform: rotateY(180deg); }
+    .card-front, .card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+    }
+    .card-back { transform: rotateY(180deg); }
   </style>
 </head>
 <body class="bg-black text-white flex items-center justify-center min-h-screen relative overflow-hidden">
@@ -25,7 +38,6 @@
 <div class="text-center max-w-xl p-6 z-10">
   <h1 class="text-4xl font-bold mb-4">Tu destino personalizado 🔮</h1>
 
-  <!-- FORMULARIO -->
   <div class="mb-4">
     <input id="name" placeholder="Nombre completo" class="w-full mb-2 p-3 rounded bg-black border border-purple-500" />
     <input id="dob" type="date" class="w-full p-3 rounded bg-black border border-purple-500" />
@@ -45,64 +57,204 @@
 </div>
 
 <script>
+function getZodiacSign(dateString){
+  const date = new Date(dateString);
+  const d = date.getDate();
+  const m = date.getMonth() + 1;
+
+  if((m==3 && d>=21)||(m==4 && d<=19)) return "Aries ♈";
+  if((m==4 && d>=20)||(m==5 && d<=20)) return "Tauro ♉";
+  if((m==5 && d>=21)||(m==6 && d<=20)) return "Géminis ♊";
+  if((m==6 && d>=21)||(m==7 && d<=22)) return "Cáncer ♋";
+  if((m==7 && d>=23)||(m==8 && d<=22)) return "Leo ♌";
+  if((m==8 && d>=23)||(m==9 && d<=22)) return "Virgo ♍";
+  if((m==9 && d>=23)||(m==10 && d<=22)) return "Libra ♎";
+  if((m==10 && d>=23)||(m==11 && d<=21)) return "Escorpio ♏";
+  if((m==11 && d>=22)||(m==12 && d<=21)) return "Sagitario ♐";
+  if((m==12 && d>=22)||(m==1 && d<=19)) return "Capricornio ♑";
+  if((m==1 && d>=20)||(m==2 && d<=18)) return "Acuario ♒";
+  return "Piscis ♓";
+}
+
 function draw(){
   const name = document.getElementById("name").value;
   const dob = document.getElementById("dob").value;
+  const btn = document.getElementById("drawBtn");
 
   if(!name || !dob){
     alert("Introduce tu nombre y fecha de nacimiento");
     return;
   }
 
+  const zodiac = getZodiacSign(dob);
+
+  btn.classList.add("shuffle");
+
   document.getElementById("loading").classList.remove("hidden");
   document.getElementById("result").innerHTML = "";
 
   setTimeout(()=>{
+    btn.classList.remove("shuffle");
+
     document.getElementById("loading").classList.add("hidden");
 
     document.getElementById("result").innerHTML = `
-      <div class='p-4 border rounded-xl glow fade-in'>
-        <h2 class='text-xl font-bold mb-2'>${name}</h2>
-        <p class='opacity-70'>Hay una energía fuerte que rodea tu destino...</p>
+      <div class='card relative w-full h-48 mx-auto'>
+        <div class='card-inner w-full h-full'>
+          <div class='card-front flex items-center justify-center border rounded-xl glow h-full'>🔮</div>
+          <div class='card-back flex flex-col items-center justify-center border rounded-xl glow h-full p-4'>
+            <img src='https://images.unsplash.com/photo-1604881991720-f91add269bed?w=400' class='w-full h-20 object-cover rounded mb-2'/>
+            <h2 class='text-lg font-bold'>${name}</h2>
+            <p class='text-sm opacity-70'>Signo: ${zodiac}</p>
+            <p class='opacity-70 text-center'>Tu energía revela algo oculto...</p>
+          </div>
+        </div>
       </div>
     `;
 
-    document.getElementById("cta").classList.remove("hidden");
-    renderPayPal(name);
+    setTimeout(()=>{
+      document.querySelector('.card').classList.add('flip');
+    },200);
+
+    setTimeout(()=>{
+      document.getElementById("cta").classList.remove("hidden");
+      renderPayPal(name, zodiac);
+    },800);
 
   },1500);
 }
 
-function generatePrediction(name){
-  return `
-${name}, tu energía actual indica un cambio importante en tu vida.
-En el amor, alguien piensa en ti más de lo que aparenta.
-Puede surgir una conexión inesperada en los próximos días.
-En el dinero, se abre una oportunidad que no debes ignorar.
-Debes confiar más en tus decisiones económicas.
-Tu salud muestra señales de necesitar descanso y equilibrio.
-Escucha tu cuerpo y evita el estrés acumulado.
-Hay una persona cercana que influye en tu destino.
-Un cambio emocional marcará tu camino pronto.
-Este es un momento clave para tomar decisiones valientes.
-`;
+function generatePrediction(name, zodiac){
+  const predictions = [
+`<p>${name}, como ${zodiac}, estás entrando en una etapa donde todo comienza a tomar sentido. Las decisiones que has evitado empiezan a manifestarse en tu entorno y te empujan a actuar.</p>
+<p>En el amor, alguien siente más de lo que demuestra. Hay una energía de conexión profunda que aún no se ha revelado completamente.</p>
+<p>Tu vida emocional se intensifica y te llevará a cuestionar lo que realmente deseas.</p>
+<p>En el dinero, aparece una oportunidad inesperada que dependerá de tu rapidez mental.</p>
+<p>Es importante que no dudes cuando llegue el momento de actuar.</p>
+<p>Tu salud mejora si logras equilibrar descanso y actividad.</p>
+<p>Evita acumular tensiones innecesarias.</p>
+<p>Una persona cercana influirá en una decisión clave.</p>
+<p>Escucha tu intuición antes que cualquier consejo externo.</p>
+<p>Este es un punto de inflexión importante en tu vida.</p>`,
+
+`<p>${name}, como ${zodiac}, tu energía está en expansión y comienzas a atraer situaciones que antes parecían lejanas. Todo empieza a moverse a tu favor.</p>
+<p>En el amor, hay una conexión que se fortalece en silencio.</p>
+<p>Alguien está observando tus pasos con interés real.</p>
+<p>En el dinero, hay señales de crecimiento si sabes aprovecharlas.</p>
+<p>No ignores pequeñas oportunidades.</p>
+<p>Tu salud requiere más atención emocional.</p>
+<p>Descansar será clave para mantener tu equilibrio.</p>
+<p>Un cambio en tu entorno traerá claridad.</p>
+<p>Algo que parecía confuso empezará a resolverse.</p>
+<p>Confía en el proceso que estás viviendo.</p>`,
+
+`<p>${name}, como ${zodiac}, estás en una etapa donde todo se transforma lentamente. Lo que hoy parece incierto pronto tendrá sentido.</p>
+<p>En el amor, hay sentimientos ocultos que saldrán a la luz.</p>
+<p>Una conversación importante cambiará tu perspectiva.</p>
+<p>En el dinero, una oportunidad se acerca pero exige atención.</p>
+<p>No dejes pasar señales evidentes.</p>
+<p>Tu salud mejora si reduces el estrés.</p>
+<p>Escuchar tu cuerpo será fundamental.</p>
+<p>Alguien cercano tiene un impacto importante en tu camino.</p>
+<p>Debes confiar más en tus decisiones.</p>
+<p>Se abre una nueva etapa para ti.</p>`,
+
+`<p>${name}, como ${zodiac}, tu camino se está redefiniendo. Hay fuerzas que están alineándose para llevarte hacia algo mejor.</p>
+<p>En el amor, una relación puede intensificarse.</p>
+<p>Las emociones se vuelven más claras.</p>
+<p>En el dinero, se presenta una mejora progresiva.</p>
+<p>Debes mantener disciplina.</p>
+<p>Tu salud mejora con pequeños cambios diarios.</p>
+<p>Evita ignorar señales físicas.</p>
+<p>Un evento inesperado marcará tu rumbo.</p>
+<p>Debes estar preparado para actuar.</p>
+<p>Confía en lo que viene.</p>`,
+
+`<p>${name}, como ${zodiac}, estás atrayendo cambios positivos que transformarán tu entorno. Todo empieza a moverse a tu favor.</p>
+<p>En el amor, alguien se acerca con intención clara.</p>
+<p>Puede surgir algo inesperado.</p>
+<p>En el dinero, estabilidad en crecimiento.</p>
+<p>No te precipites en decisiones.</p>
+<p>Tu salud requiere descanso mental.</p>
+<p>Desconectar será necesario.</p>
+<p>Un nuevo camino se abre frente a ti.</p>
+<p>No tengas miedo de explorarlo.</p>
+<p>Tu intuición será tu mejor guía.</p>`,
+
+`<p>${name}, como ${zodiac}, estás en un momento clave donde todo puede cambiar rápidamente si tomas decisiones correctas.</p>
+<p>En el amor, hay una energía intensa que no puedes ignorar.</p>
+<p>Las emociones se vuelven más profundas.</p>
+<p>En el dinero, llega una oportunidad inesperada.</p>
+<p>Debes actuar con inteligencia.</p>
+<p>Tu salud mejora si equilibras tu rutina.</p>
+<p>Evita el exceso de preocupaciones.</p>
+<p>Una persona influirá en tu destino.</p>
+<p>Presta atención a las señales.</p>
+<p>Este es tu momento de avanzar.</p>`,
+
+`<p>${name}, como ${zodiac}, tu energía está cambiando y eso atraerá nuevas oportunidades a tu vida.</p>
+<p>En el amor, alguien empieza a verte de forma diferente.</p>
+<p>Puede surgir una conexión importante.</p>
+<p>En el dinero, estabilidad progresiva.</p>
+<p>Debes mantener constancia.</p>
+<p>Tu salud mejora si cuidas tu descanso.</p>
+<p>Evita sobrecargarte.</p>
+<p>Un cambio inesperado llegará.</p>
+<p>Te beneficiará si sabes adaptarte.</p>
+<p>Confía en el proceso.</p>`,
+
+`<p>${name}, como ${zodiac}, estás evolucionando y dejando atrás situaciones que ya no te aportan.</p>
+<p>En el amor, se aclaran sentimientos.</p>
+<p>Una verdad saldrá a la luz.</p>
+<p>En el dinero, mejora gradual.</p>
+<p>Debes ser paciente.</p>
+<p>Tu salud necesita equilibrio.</p>
+<p>Escucha tu cuerpo.</p>
+<p>Un mensaje importante llegará.</p>
+<p>No lo ignores.</p>
+<p>Todo empieza a alinearse.</p>`,
+
+`<p>${name}, como ${zodiac}, estás en una fase donde todo se intensifica y te obliga a tomar decisiones importantes.</p>
+<p>En el amor, hay atracción pero también dudas.</p>
+<p>Debes ser claro con tus emociones.</p>
+<p>En el dinero, oportunidad cercana.</p>
+<p>No la dejes escapar.</p>
+<p>Tu salud mejora si reduces el estrés.</p>
+<p>Busca equilibrio.</p>
+<p>Un cambio emocional marcará tu camino.</p>
+<p>Debes confiar en ti.</p>
+<p>Se abre una nueva etapa.</p>`,
+
+`<p>${name}, como ${zodiac}, tu destino está tomando forma y comienzas a ver resultados de decisiones pasadas.</p>
+<p>En el amor, una relación se fortalece.</p>
+<p>Hay sentimientos reales.</p>
+<p>En el dinero, llegan buenas noticias.</p>
+<p>Aprovecha el momento.</p>
+<p>Tu salud mejora con hábitos positivos.</p>
+<p>No ignores tu bienestar.</p>
+<p>Un cambio importante llega.</p>
+<p>Te beneficiará.</p>
+<p>Confía en lo que viene.</p>`
+  ];
+
+  return predictions[Math.floor(Math.random() * predictions.length)];
 }
 
-function unlock(name){
+function unlock(name, zodiac){
   const extra = document.createElement("div");
   extra.className = "mt-4 p-4 border rounded-xl fade-in";
-  extra.innerText = generatePrediction(name);
+  extra.innerText = generatePrediction(name, zodiac);
   document.getElementById("result").appendChild(extra);
 }
 
-function renderPayPal(name){
+function renderPayPal(name, zodiac){
   document.getElementById("paypal-button-container").innerHTML = "";
 
   paypal.Buttons({
     createOrder: (data, actions) => actions.order.create({
       purchase_units: [{ amount: { value: "4.99" } }]
     }),
-    onApprove: (data, actions) => actions.order.capture().then(()=> unlock(name))
+    onApprove: (data, actions) => actions.order.capture().then(()=> unlock(name, zodiac))
   }).render('#paypal-button-container');
 }
 </script>
