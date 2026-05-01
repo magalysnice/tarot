@@ -97,7 +97,70 @@ function draw(){
 }
 
 function generatePrediction(name,zodiac){
-  return `<p>${name}, como ${zodiac}, tu vida está cambiando profundamente...</p>`;
+  const predictions = [
+`<p>${name}, como ${zodiac}, estás entrando en una etapa donde tu energía comienza a alinearse con decisiones que llevabas tiempo evitando. En el amor, se perciben sentimientos más profundos de lo que aparenta la otra persona, lo que puede llevar a una conversación importante en los próximos días. Es posible que descubras intenciones ocultas que cambiarán tu percepción.</p>
+<p>En el dinero, aparece una oportunidad que no será evidente al principio, pero que puede traerte estabilidad si sabes actuar con inteligencia. Evita decisiones impulsivas y analiza bien cada paso.</p>
+<p>En la salud, tu cuerpo te pide equilibrio. Es momento de descansar más y escuchar señales internas. Un cambio en tu rutina traerá beneficios importantes.</p>
+<p>Tu entorno se transforma lentamente, y una persona cercana influirá en una decisión clave. Confía en tu intuición, porque será más precisa que cualquier consejo externo.</p>
+<p>Este es un momento de evolución, donde cada paso que des tendrá un impacto significativo en tu futuro.</p>`,
+
+`<p>${name}, como ${zodiac}, estás atravesando una etapa de cambios donde lo emocional cobra protagonismo. En el amor, hay alguien que siente más de lo que expresa, y esto puede generar confusión si no se aclaran las intenciones.</p>
+<p>En el dinero, se presentan señales positivas, pero necesitarás paciencia para ver resultados reales. Evita gastos innecesarios y prioriza estabilidad.</p>
+<p>Tu salud refleja tu estado mental. Si estás acumulando estrés, es momento de liberar tensión y buscar momentos de calma.</p>
+<p>Una oportunidad inesperada puede aparecer en los próximos días, pero dependerá de tu capacidad de reacción aprovecharla.</p>
+<p>Confía en tu proceso y no te compares con otros, ya que tu camino es único.</p>`,
+
+`<p>${name}, como ${zodiac}, tu energía está cambiando y eso atrae nuevas oportunidades. En el amor, hay una conexión que comienza a fortalecerse, incluso si aún no es evidente.</p>
+<p>En el dinero, podrías recibir noticias positivas relacionadas con trabajo o ingresos adicionales.</p>
+<p>En la salud, es importante mantener hábitos constantes y evitar excesos.</p>
+<p>Una decisión importante se aproxima, y dependerá de tu intuición elegir el camino correcto.</p>
+<p>Este es un momento ideal para avanzar sin miedo y confiar en lo que viene.</p>`,
+
+`<p>${name}, como ${zodiac}, estás en una fase de crecimiento personal. En el amor, es posible que una relación evolucione o cambie de forma inesperada.</p>
+<p>En el dinero, hay señales de mejora si mantienes disciplina.</p>
+<p>Tu salud necesita atención en pequeños detalles diarios.</p>
+<p>Un cambio emocional marcará tu camino en los próximos días.</p>
+<p>Confía en ti y en las decisiones que tomes.</p>`,
+
+`<p>${name}, como ${zodiac}, se abren nuevas posibilidades en tu vida. En el amor, alguien podría acercarse con intenciones claras.</p>
+<p>En el dinero, es momento de aprovechar oportunidades.</p>
+<p>Tu salud mejora si reduces el estrés.</p>
+<p>Una noticia inesperada traerá cambios positivos.</p>
+<p>Tu intuición será clave en este proceso.</p>`,
+
+`<p>${name}, como ${zodiac}, estás dejando atrás situaciones que ya no te aportan. En el amor, hay claridad en tus sentimientos.</p>
+<p>En el dinero, estabilidad progresiva.</p>
+<p>Tu salud mejora si mantienes equilibrio.</p>
+<p>Un cambio importante se acerca.</p>
+<p>Confía en lo que estás construyendo.</p>`,
+
+`<p>${name}, como ${zodiac}, tu entorno comienza a transformarse. En el amor, alguien podría sorprenderte.</p>
+<p>En el dinero, oportunidades nuevas.</p>
+<p>Tu salud necesita descanso.</p>
+<p>Una decisión cambiará tu rumbo.</p>
+<p>Escucha tu intuición.</p>`,
+
+`<p>${name}, como ${zodiac}, estás en un momento clave. En el amor, hay emociones intensas.</p>
+<p>En el dinero, estabilidad cercana.</p>
+<p>Tu salud mejora si te cuidas.</p>
+<p>Un cambio positivo llegará.</p>
+<p>Es momento de avanzar.</p>`,
+
+`<p>${name}, como ${zodiac}, tu destino se está activando. En el amor, una conexión fuerte aparece.</p>
+<p>En el dinero, buenas noticias.</p>
+<p>Tu salud mejora con descanso.</p>
+<p>Un cambio importante se acerca.</p>
+<p>Confía en lo que viene.</p>`,
+
+`<p>${name}, como ${zodiac}, todo empieza a alinearse. En el amor, claridad emocional.</p>
+<p>En el dinero, oportunidad inesperada.</p>
+<p>Tu salud necesita equilibrio.</p>
+<p>Un evento marcará tu camino.</p>
+<p>Este es tu momento.</p>`
+  ];
+
+  return predictions[Math.floor(Math.random() * predictions.length)];
+}, como ${zodiac}, tu vida está cambiando profundamente...</p>`;
 }
 
 function unlock(name,zodiac){
