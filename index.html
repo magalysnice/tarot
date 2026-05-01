@@ -46,8 +46,9 @@
     <button onclick="setSpread(10)" class="px-3 py-1 bg-purple-700 rounded-lg text-sm">Cruz Celta</button>
   </div>
 
-  <div class="mb-4">
+  <div class="mb-4 text-left">
     <input id="name" placeholder="Nombre completo" class="w-full mb-2 p-3 rounded bg-black border border-purple-500" />
+    <label class="text-xs opacity-70">Fecha de nacimiento</label>
     <input id="dob" type="date" class="w-full p-3 rounded bg-black border border-purple-500" />
   </div>
 
@@ -90,6 +91,20 @@ function setSpread(n){
   currentSpread = n;
 }
 
+// predicciones cortas por carta
+const shortPredictions = [
+  "Alguien piensa en ti ahora mismo.",
+  "Se acerca una oportunidad inesperada.",
+  "Confía en tu intuición hoy.",
+  "Un cambio positivo está cerca.",
+  "Evita decisiones impulsivas.",
+  "Alguien del pasado vuelve.",
+  "Buenas noticias en camino.",
+  "Tu energía está cambiando.",
+  "Se abre un nuevo camino.",
+  "Algo oculto saldrá a la luz."
+];
+
 function draw(){
   const name = document.getElementById("name").value;
   const dob = document.getElementById("dob").value;
@@ -109,19 +124,21 @@ function draw(){
 
   setTimeout(()=>{
     btn.classList.remove("shuffle");
-
     document.getElementById("loading").classList.add("hidden");
 
     let cardsHTML = "";
+
     for(let i=0;i<currentSpread;i++){
+      const shortText = shortPredictions[Math.floor(Math.random()*shortPredictions.length)];
+
       cardsHTML += `
-      <div class='card relative w-full h-40 mx-auto mb-3'>
+      <div class='card relative w-full h-44 mx-auto mb-4'>
         <div class='card-inner w-full h-full'>
           <div class='card-front flex items-center justify-center border rounded-xl glow h-full'>🔮</div>
           <div class='card-back flex flex-col items-center justify-center border rounded-xl glow h-full p-3'>
-            <img src='https://images.unsplash.com/photo-1604881991720-f91add269bed?w=400' class='w-full h-16 object-cover rounded mb-1'/>
-            <h2 class='text-sm font-bold'>${name}</h2>
-            <p class='text-xs opacity-70'>${zodiac}</p>
+            <img src='https://images.unsplash.com/photo-1604881991720-f91add269bed?w=400' class='w-full h-20 object-cover rounded mb-2'/>
+            <p class='text-xs opacity-70 mb-1'>${zodiac}</p>
+            <p class='text-sm text-center'>${shortText}</p>
           </div>
         </div>
       </div>`;
@@ -129,8 +146,13 @@ function draw(){
 
     document.getElementById("result").innerHTML = cardsHTML;
 
+    // flip TODAS las cartas
     setTimeout(()=>{
-      document.querySelector('.card').classList.add('flip');
+      document.querySelectorAll('.card').forEach((card, index)=>{
+        setTimeout(()=>{
+          card.classList.add('flip');
+        }, index * 200);
+      });
     },200);
 
     setTimeout(()=>{
@@ -143,115 +165,8 @@ function draw(){
 
 function generatePrediction(name, zodiac){
   const predictions = [
-`<p>${name}, como ${zodiac}, estás entrando en una etapa donde todo comienza a tomar sentido. Las decisiones que has evitado empiezan a manifestarse en tu entorno y te empujan a actuar.</p>
-<p>En el amor, alguien siente más de lo que demuestra. Hay una energía de conexión profunda que aún no se ha revelado completamente.</p>
-<p>Tu vida emocional se intensifica y te llevará a cuestionar lo que realmente deseas.</p>
-<p>En el dinero, aparece una oportunidad inesperada que dependerá de tu rapidez mental.</p>
-<p>Es importante que no dudes cuando llegue el momento de actuar.</p>
-<p>Tu salud mejora si logras equilibrar descanso y actividad.</p>
-<p>Evita acumular tensiones innecesarias.</p>
-<p>Una persona cercana influirá en una decisión clave.</p>
-<p>Escucha tu intuición antes que cualquier consejo externo.</p>
-<p>Este es un punto de inflexión importante en tu vida.</p>`,
-
-`<p>${name}, como ${zodiac}, tu energía está en expansión y comienzas a atraer situaciones que antes parecían lejanas. Todo empieza a moverse a tu favor.</p>
-<p>En el amor, hay una conexión que se fortalece en silencio.</p>
-<p>Alguien está observando tus pasos con interés real.</p>
-<p>En el dinero, hay señales de crecimiento si sabes aprovecharlas.</p>
-<p>No ignores pequeñas oportunidades.</p>
-<p>Tu salud requiere más atención emocional.</p>
-<p>Descansar será clave para mantener tu equilibrio.</p>
-<p>Un cambio en tu entorno traerá claridad.</p>
-<p>Algo que parecía confuso empezará a resolverse.</p>
-<p>Confía en el proceso que estás viviendo.</p>`,
-
-`<p>${name}, como ${zodiac}, estás en una etapa donde todo se transforma lentamente. Lo que hoy parece incierto pronto tendrá sentido.</p>
-<p>En el amor, hay sentimientos ocultos que saldrán a la luz.</p>
-<p>Una conversación importante cambiará tu perspectiva.</p>
-<p>En el dinero, una oportunidad se acerca pero exige atención.</p>
-<p>No dejes pasar señales evidentes.</p>
-<p>Tu salud mejora si reduces el estrés.</p>
-<p>Escuchar tu cuerpo será fundamental.</p>
-<p>Alguien cercano tiene un impacto importante en tu camino.</p>
-<p>Debes confiar más en tus decisiones.</p>
-<p>Se abre una nueva etapa para ti.</p>`,
-
-`<p>${name}, como ${zodiac}, tu camino se está redefiniendo. Hay fuerzas que están alineándose para llevarte hacia algo mejor.</p>
-<p>En el amor, una relación puede intensificarse.</p>
-<p>Las emociones se vuelven más claras.</p>
-<p>En el dinero, se presenta una mejora progresiva.</p>
-<p>Debes mantener disciplina.</p>
-<p>Tu salud mejora con pequeños cambios diarios.</p>
-<p>Evita ignorar señales físicas.</p>
-<p>Un evento inesperado marcará tu rumbo.</p>
-<p>Debes estar preparado para actuar.</p>
-<p>Confía en lo que viene.</p>`,
-
-`<p>${name}, como ${zodiac}, estás atrayendo cambios positivos que transformarán tu entorno. Todo empieza a moverse a tu favor.</p>
-<p>En el amor, alguien se acerca con intención clara.</p>
-<p>Puede surgir algo inesperado.</p>
-<p>En el dinero, estabilidad en crecimiento.</p>
-<p>No te precipites en decisiones.</p>
-<p>Tu salud requiere descanso mental.</p>
-<p>Desconectar será necesario.</p>
-<p>Un nuevo camino se abre frente a ti.</p>
-<p>No tengas miedo de explorarlo.</p>
-<p>Tu intuición será tu mejor guía.</p>`,
-
-`<p>${name}, como ${zodiac}, estás en un momento clave donde todo puede cambiar rápidamente si tomas decisiones correctas.</p>
-<p>En el amor, hay una energía intensa que no puedes ignorar.</p>
-<p>Las emociones se vuelven más profundas.</p>
-<p>En el dinero, llega una oportunidad inesperada.</p>
-<p>Debes actuar con inteligencia.</p>
-<p>Tu salud mejora si equilibras tu rutina.</p>
-<p>Evita el exceso de preocupaciones.</p>
-<p>Una persona influirá en tu destino.</p>
-<p>Presta atención a las señales.</p>
-<p>Este es tu momento de avanzar.</p>`,
-
-`<p>${name}, como ${zodiac}, tu energía está cambiando y eso atraerá nuevas oportunidades a tu vida.</p>
-<p>En el amor, alguien empieza a verte de forma diferente.</p>
-<p>Puede surgir una conexión importante.</p>
-<p>En el dinero, estabilidad progresiva.</p>
-<p>Debes mantener constancia.</p>
-<p>Tu salud mejora si cuidas tu descanso.</p>
-<p>Evita sobrecargarte.</p>
-<p>Un cambio inesperado llegará.</p>
-<p>Te beneficiará si sabes adaptarte.</p>
-<p>Confía en el proceso.</p>`,
-
-`<p>${name}, como ${zodiac}, estás evolucionando y dejando atrás situaciones que ya no te aportan.</p>
-<p>En el amor, se aclaran sentimientos.</p>
-<p>Una verdad saldrá a la luz.</p>
-<p>En el dinero, mejora gradual.</p>
-<p>Debes ser paciente.</p>
-<p>Tu salud necesita equilibrio.</p>
-<p>Escucha tu cuerpo.</p>
-<p>Un mensaje importante llegará.</p>
-<p>No lo ignores.</p>
-<p>Todo empieza a alinearse.</p>`,
-
-`<p>${name}, como ${zodiac}, estás en una fase donde todo se intensifica y te obliga a tomar decisiones importantes.</p>
-<p>En el amor, hay atracción pero también dudas.</p>
-<p>Debes ser claro con tus emociones.</p>
-<p>En el dinero, oportunidad cercana.</p>
-<p>No la dejes escapar.</p>
-<p>Tu salud mejora si reduces el estrés.</p>
-<p>Busca equilibrio.</p>
-<p>Un cambio emocional marcará tu camino.</p>
-<p>Debes confiar en ti.</p>
-<p>Se abre una nueva etapa.</p>`,
-
-`<p>${name}, como ${zodiac}, tu destino está tomando forma y comienzas a ver resultados de decisiones pasadas.</p>
-<p>En el amor, una relación se fortalece.</p>
-<p>Hay sentimientos reales.</p>
-<p>En el dinero, llegan buenas noticias.</p>
-<p>Aprovecha el momento.</p>
-<p>Tu salud mejora con hábitos positivos.</p>
-<p>No ignores tu bienestar.</p>
-<p>Un cambio importante llega.</p>
-<p>Te beneficiará.</p>
-<p>Confía en lo que viene.</p>`
+`<p>${name}, como ${zodiac}, estás entrando en una etapa donde todo comienza a tomar sentido...</p>`,
+`<p>${name}, como ${zodiac}, tu energía está cambiando rápidamente...</p>`
   ];
 
   return predictions[Math.floor(Math.random() * predictions.length)];
