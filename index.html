@@ -5,13 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tarot Viral 🔮</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://www.paypal.com/sdk/js?client-id=TU_CLIENT_ID&currency=EUR"></script>
   <style>
     .glow { box-shadow: 0 0 20px rgba(168,85,247,0.6); }
   </style>
 </head>
 <body class="bg-black text-white flex items-center justify-center min-h-screen relative overflow-hidden">
 
-<!-- Fondo animado -->
 <div class="absolute inset-0 bg-gradient-to-br from-purple-900 via-black to-black animate-pulse opacity-80"></div>
 
 <div class="text-center max-w-xl p-6 z-10">
@@ -31,9 +31,8 @@
   <div id="result" class="mt-6"></div>
 
   <div id="cta" class="mt-6 hidden">
-    <button onclick="unlock()" class="bg-yellow-500 text-black px-6 py-3 rounded-xl glow">
-      Desbloquear significado completo 🔥
-    </button>
+    <p class="mb-2">Desbloquea la interpretación completa:</p>
+    <div id="paypal-button-container"></div>
   </div>
 
   <div class="mt-6 flex gap-2 justify-center">
@@ -73,6 +72,7 @@ function draw(){
     `;
 
     document.getElementById("cta").classList.remove("hidden");
+    renderPayPal();
   }, 1500);
 }
 
@@ -82,6 +82,25 @@ function unlock(){
       <p class='text-sm'>Esta carta indica un cambio fuerte en tu situación actual. Alguien cercano influye más de lo que crees.</p>
     </div>
   `;
+}
+
+function renderPayPal(){
+  document.getElementById("paypal-button-container").innerHTML = "";
+
+  paypal.Buttons({
+    createOrder: function(data, actions) {
+      return actions.order.create({
+        purchase_units: [{
+          amount: { value: "4.99" }
+        }]
+      });
+    },
+    onApprove: function(data, actions) {
+      return actions.order.capture().then(function(details) {
+        unlock();
+      });
+    }
+  }).render('#paypal-button-container');
 }
 
 function shareWA(){
