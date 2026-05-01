@@ -36,7 +36,15 @@
 <div class="absolute inset-0 bg-gradient-to-br from-purple-900 via-black to-black opacity-80"></div>
 
 <div class="text-center w-full max-w-xl p-4 md:p-6 z-10 pb-20">
-  <h1 class="text-4xl font-bold mb-4">Tu destino personalizado 🔮</h1>
+  <h1 class="text-3xl md:text-4xl font-bold mb-2">🔮 Nadie esperaba esto… pero está pasando</h1>
+  <p class="text-sm opacity-70 mb-4">Elige tu tipo de tirada y descubre lo que se oculta en tu destino</p>
+
+  <!-- Selector tiradas -->
+  <div class="flex flex-wrap gap-2 justify-center mb-4">
+    <button onclick="setSpread(1)" class="px-3 py-1 bg-purple-700 rounded-lg text-sm">1 Carta</button>
+    <button onclick="setSpread(3)" class="px-3 py-1 bg-purple-700 rounded-lg text-sm">3 Cartas</button>
+    <button onclick="setSpread(10)" class="px-3 py-1 bg-purple-700 rounded-lg text-sm">Cruz Celta</button>
+  </div>
 
   <div class="mb-4">
     <input id="name" placeholder="Nombre completo" class="w-full mb-2 p-3 rounded bg-black border border-purple-500" />
@@ -76,6 +84,12 @@ function getZodiacSign(dateString){
   return "Piscis ♓";
 }
 
+let currentSpread = 1;
+
+function setSpread(n){
+  currentSpread = n;
+}
+
 function draw(){
   const name = document.getElementById("name").value;
   const dob = document.getElementById("dob").value;
@@ -98,19 +112,22 @@ function draw(){
 
     document.getElementById("loading").classList.add("hidden");
 
-    document.getElementById("result").innerHTML = `
-      <div class='card relative w-full h-48 mx-auto'>
+    let cardsHTML = "";
+    for(let i=0;i<currentSpread;i++){
+      cardsHTML += `
+      <div class='card relative w-full h-40 mx-auto mb-3'>
         <div class='card-inner w-full h-full'>
           <div class='card-front flex items-center justify-center border rounded-xl glow h-full'>🔮</div>
-          <div class='card-back flex flex-col items-center justify-center border rounded-xl glow h-full p-4'>
-            <img src='https://images.unsplash.com/photo-1604881991720-f91add269bed?w=400' class='w-full h-20 object-cover rounded mb-2'/>
-            <h2 class='text-lg font-bold'>${name}</h2>
-            <p class='text-sm opacity-70'>Signo: ${zodiac}</p>
-            <p class='opacity-70 text-center'>Tu energía revela algo oculto...</p>
+          <div class='card-back flex flex-col items-center justify-center border rounded-xl glow h-full p-3'>
+            <img src='https://images.unsplash.com/photo-1604881991720-f91add269bed?w=400' class='w-full h-16 object-cover rounded mb-1'/>
+            <h2 class='text-sm font-bold'>${name}</h2>
+            <p class='text-xs opacity-70'>${zodiac}</p>
           </div>
         </div>
-      </div>
-    `;
+      </div>`;
+    }
+
+    document.getElementById("result").innerHTML = cardsHTML;
 
     setTimeout(()=>{
       document.querySelector('.card').classList.add('flip');
