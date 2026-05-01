@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tarot Viral 🔮</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://www.paypal.com/ncp/payment/GN4SPT3DEPUY4"></script>
+  <script src="https://www.paypal.com/sdk/js?client-id=sb&currency=EUR"></script>
   <style>
     .glow { box-shadow: 0 0 20px rgba(168,85,247,0.6); }
 
@@ -31,11 +31,11 @@
     .card-back { transform: rotateY(180deg); }
   </style>
 </head>
-<body class="bg-black text-white flex items-center justify-center min-h-screen relative overflow-hidden">
+<body class="bg-black text-white flex items-start justify-center min-h-screen relative overflow-x-hidden overflow-y-auto">
 
 <div class="absolute inset-0 bg-gradient-to-br from-purple-900 via-black to-black opacity-80"></div>
 
-<div class="text-center max-w-xl p-6 z-10">
+<div class="text-center w-full max-w-xl p-4 md:p-6 z-10 pb-20">
   <h1 class="text-4xl font-bold mb-4">Tu destino personalizado 🔮</h1>
 
   <div class="mb-4">
@@ -242,8 +242,8 @@ function generatePrediction(name, zodiac){
 
 function unlock(name, zodiac){
   const extra = document.createElement("div");
-  extra.className = "mt-4 p-4 border rounded-xl fade-in";
-  extra.innerText = generatePrediction(name, zodiac);
+  extra.className = "mt-4 p-4 border rounded-xl fade-in text-left leading-relaxed space-y-3";
+  extra.innerHTML = generatePrediction(name, zodiac);
   document.getElementById("result").appendChild(extra);
 }
 
