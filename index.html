@@ -5,112 +5,105 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tarot Viral 🔮</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- ⚠️ IMPORTANTE: reemplaza TU_CLIENT_ID por el real de PayPal -->
   <script src="https://www.paypal.com/sdk/js?client-id=sb&currency=EUR"></script>
   <style>
     .glow { box-shadow: 0 0 20px rgba(168,85,247,0.6); }
+    @keyframes shuffle {
+      0% { transform: rotate(0deg) scale(1); }
+      50% { transform: rotate(10deg) scale(1.1); }
+      100% { transform: rotate(0deg) scale(1); }
+    }
+    .shuffle { animation: shuffle 0.6s infinite; }
+    .fade-in { animation: fadeIn 0.6s ease forwards; }
+    @keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
   </style>
 </head>
 <body class="bg-black text-white flex items-center justify-center min-h-screen relative overflow-hidden">
 
-<div class="absolute inset-0 bg-gradient-to-br from-purple-900 via-black to-black animate-pulse opacity-80"></div>
+<div class="absolute inset-0 bg-gradient-to-br from-purple-900 via-black to-black opacity-80"></div>
 
 <div class="text-center max-w-xl p-6 z-10">
-  <h1 class="text-4xl font-bold mb-4">
-    Esto está revelando cosas que nadie esperaba 🔮
-  </h1>
+  <h1 class="text-4xl font-bold mb-4">Tu destino personalizado 🔮</h1>
 
-  <p id="users" class="opacity-70 mb-2"></p>
-  <p class="text-sm opacity-50 mb-4">Solo hoy: acceso limitado</p>
+  <!-- FORMULARIO -->
+  <div class="mb-4">
+    <input id="name" placeholder="Nombre completo" class="w-full mb-2 p-3 rounded bg-black border border-purple-500" />
+    <input id="dob" type="date" class="w-full p-3 rounded bg-black border border-purple-500" />
+  </div>
 
-  <button onclick="draw()" class="bg-purple-600 px-6 py-3 rounded-xl text-lg glow hover:scale-105 transition">
-    Tirar Carta 🃏
+  <button id="drawBtn" onclick="draw()" class="bg-purple-600 px-6 py-3 rounded-xl text-lg glow">
+    Revelar destino ✨
   </button>
 
-  <div id="loading" class="mt-4 hidden">🃏 Barajando cartas...</div>
-
+  <div id="loading" class="mt-4 hidden">🔮 Analizando tu energía...</div>
   <div id="result" class="mt-6"></div>
 
   <div id="cta" class="mt-6 hidden">
-    <p class="mb-2">Desbloquea la interpretación completa:</p>
+    <p class="mb-2">Desbloquea tu predicción completa:</p>
     <div id="paypal-button-container"></div>
   </div>
-
-  <div class="mt-6 flex gap-2 justify-center">
-    <button onclick="shareWA()" class="bg-green-500 px-4 py-2 rounded-lg">WhatsApp</button>
-    <button onclick="shareTG()" class="bg-blue-500 px-4 py-2 rounded-lg">Telegram</button>
-  </div>
-
-  <p class="mt-6 text-sm opacity-60">
-    Más de 90% de personas vuelven a consultar...
-  </p>
 </div>
 
 <script>
-const deck = ["El Loco","El Mago","La Sacerdotisa","El Sol","La Luna"];
-
-let users = 1243;
-setInterval(()=>{
-  users += Math.floor(Math.random()*3);
-  document.getElementById("users").innerText = users + " personas ya hicieron su tirada hoy";
-},2000);
-
 function draw(){
+  const name = document.getElementById("name").value;
+  const dob = document.getElementById("dob").value;
+
+  if(!name || !dob){
+    alert("Introduce tu nombre y fecha de nacimiento");
+    return;
+  }
+
   document.getElementById("loading").classList.remove("hidden");
   document.getElementById("result").innerHTML = "";
-  document.getElementById("cta").classList.add("hidden");
 
   setTimeout(()=>{
-    const card = deck[Math.floor(Math.random()*deck.length)];
-
     document.getElementById("loading").classList.add("hidden");
 
     document.getElementById("result").innerHTML = `
-      <div class='mt-4 p-4 border rounded-xl glow'>
-        <h2 class='text-xl font-bold'>${card}</h2>
-        <p class='opacity-70'>Hay algo importante que no estás viendo...</p>
+      <div class='p-4 border rounded-xl glow fade-in'>
+        <h2 class='text-xl font-bold mb-2'>${name}</h2>
+        <p class='opacity-70'>Hay una energía fuerte que rodea tu destino...</p>
       </div>
     `;
 
     document.getElementById("cta").classList.remove("hidden");
-    renderPayPal();
-  }, 1500);
+    renderPayPal(name);
+
+  },1500);
 }
 
-function unlock(){
-  document.getElementById("result").innerHTML += `
-    <div class='mt-4 p-4 border rounded-xl'>
-      <p class='text-sm'>Esta carta indica un cambio fuerte en tu situación actual. Alguien cercano influye más de lo que crees.</p>
-    </div>
-  `;
+function generatePrediction(name){
+  return `
+${name}, tu energía actual indica un cambio importante en tu vida.
+En el amor, alguien piensa en ti más de lo que aparenta.
+Puede surgir una conexión inesperada en los próximos días.
+En el dinero, se abre una oportunidad que no debes ignorar.
+Debes confiar más en tus decisiones económicas.
+Tu salud muestra señales de necesitar descanso y equilibrio.
+Escucha tu cuerpo y evita el estrés acumulado.
+Hay una persona cercana que influye en tu destino.
+Un cambio emocional marcará tu camino pronto.
+Este es un momento clave para tomar decisiones valientes.
+`;
 }
 
-function renderPayPal(){
+function unlock(name){
+  const extra = document.createElement("div");
+  extra.className = "mt-4 p-4 border rounded-xl fade-in";
+  extra.innerText = generatePrediction(name);
+  document.getElementById("result").appendChild(extra);
+}
+
+function renderPayPal(name){
   document.getElementById("paypal-button-container").innerHTML = "";
 
   paypal.Buttons({
-    createOrder: function(data, actions) {
-      return actions.order.create({
-        purchase_units: [{
-          amount: { value: "4.99" }
-        }]
-      });
-    },
-    onApprove: function(data, actions) {
-      return actions.order.capture().then(function(details) {
-        unlock();
-      });
-    }
+    createOrder: (data, actions) => actions.order.create({
+      purchase_units: [{ amount: { value: "4.99" } }]
+    }),
+    onApprove: (data, actions) => actions.order.capture().then(()=> unlock(name))
   }).render('#paypal-button-container');
-}
-
-function shareWA(){
-  const text = "🔥 Esto me dejó loco... prueba tu tirada:";
-  window.open(`https://wa.me/?text=${encodeURIComponent(text + " " + location.href)}`);
-}
-
-function shareTG(){
-  window.open(`https://t.me/share/url?url=${location.href}`);
 }
 </script>
 
