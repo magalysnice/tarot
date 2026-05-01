@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tarot Viral 🔮</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://www.paypal.com/ncp/payment/GN4SPT3DEPUY4"></script>
+  <script src="https://www.paypal.com/sdk/js?client-id=sb&currency=EUR"></script>
   <style>
     .glow { box-shadow: 0 0 20px rgba(168,85,247,0.6); }
 
@@ -191,11 +191,41 @@ function unlock(name, zodiac){
 }
 
 function renderPayPal(name, zodiac){
-  document.getElementById("paypal-button-container").innerHTML = "";
+  const container = document.getElementById("paypal-button-container");
+  container.innerHTML = "";
+
+  // comprobar que PayPal cargó
+  if (typeof paypal === "undefined") {
+    console.error("PayPal no se ha cargado correctamente");
+    container.innerHTML = "<p class='text-red-400'>Error cargando pago. Recarga la página.</p>";
+    return;
+  }
 
   paypal.Buttons({
-    createOrder: (data, actions) => actions.order.create({
-      purchase_units: [{ amount: { value: "4.99" } }]
+    style: {
+      layout: 'vertical',
+      color: 'gold',
+      shape: 'rect',
+      label: 'paypal'
+    },
+    createOrder: function(data, actions) {
+      return actions.order.create({
+        purchase_units: [{
+          amount: { value: "4.99" }
+        }]
+      });
+    },
+    onApprove: function(data, actions) {
+      return actions.order.capture().then(function(details) {
+        unlock(name, zodiac);
+      });
+    },
+    onError: function(err) {
+      console.error("Error en PayPal:", err);
+      container.innerHTML = "<p class='text-red-400'>Error en el pago. Inténtalo de nuevo.</p>";
+    }
+  }).render('#paypal-button-container');
+} }]
     }),
     onApprove: (data, actions) => actions.order.capture().then(()=> unlock(name, zodiac))
   }).render('#paypal-button-container');
