@@ -3,22 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tarot Viral 🔮</title>
+  <title>Tarot Premium 🔮</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://www.paypal.com/sdk/js?client-id=sb&currency=EUR"></script>
   <style>
     .glow { box-shadow: 0 0 20px rgba(168,85,247,0.6); }
-
-    @keyframes shuffle {
-      0% { transform: rotate(0deg) scale(1); }
-      50% { transform: rotate(10deg) scale(1.1); }
-      100% { transform: rotate(0deg) scale(1); }
-    }
-    .shuffle { animation: shuffle 0.6s infinite; }
-
-    @keyframes fadeIn { from {opacity:0; transform:translateY(10px);} to {opacity:1; transform:translateY(0);} }
-    .fade-in { animation: fadeIn 0.6s ease forwards; }
-
     .card { perspective: 1000px; }
     .card-inner { transition: transform 0.8s; transform-style: preserve-3d; }
     .card.flip .card-inner { transform: rotateY(180deg); }
@@ -31,204 +19,117 @@
     .card-back { transform: rotateY(180deg); }
   </style>
 </head>
-<body class="bg-black text-white flex items-start justify-center min-h-screen relative overflow-x-hidden overflow-y-auto">
+<body class="bg-black text-white min-h-screen overflow-y-auto">
 
-<div class="absolute inset-0 bg-gradient-to-br from-purple-900 via-black to-black opacity-80"></div>
+<div class="max-w-xl mx-auto p-4 pb-20">
+  <h1 class="text-3xl font-bold text-center mb-2">🔮 Nadie esperaba esto…</h1>
+  <p class="text-center text-sm opacity-70 mb-4">Elige tu tirada y descubre tu destino</p>
 
-<div class="text-center w-full max-w-xl p-4 md:p-6 z-10 pb-20">
-  <h1 class="text-3xl md:text-4xl font-bold mb-2">🔮 Nadie esperaba esto… pero está pasando</h1>
-  <p class="text-sm opacity-70 mb-4">Elige tu tipo de tirada y descubre lo que se oculta en tu destino</p>
-
-  <!-- Selector tiradas -->
-  <div class="flex flex-wrap gap-2 justify-center mb-4">
-    <button onclick="setSpread(1)" class="px-3 py-1 bg-purple-700 rounded-lg text-sm">1 Carta</button>
-    <button onclick="setSpread(3)" class="px-3 py-1 bg-purple-700 rounded-lg text-sm">3 Cartas</button>
-    
+  <div class="flex gap-2 justify-center mb-4">
+    <button onclick="setSpread(1)" class="bg-purple-700 px-3 py-1 rounded">1 Carta</button>
+    <button onclick="setSpread(3)" class="bg-purple-700 px-3 py-1 rounded">3 Cartas</button>
   </div>
 
-  <div class="mb-4 text-left">
-    <input id="name" placeholder="Nombre completo" class="w-full mb-2 p-3 rounded bg-black border border-purple-500" />
-    <label class="text-xs opacity-70">Fecha de nacimiento</label>
-    <input id="dob" type="date" class="w-full p-3 rounded bg-black border border-purple-500" />
-  </div>
+  <input id="name" placeholder="Nombre completo" class="w-full p-3 mb-2 bg-black border border-purple-500 rounded" />
+  <label class="text-xs opacity-70">Fecha de nacimiento</label>
+  <input id="dob" type="date" class="w-full p-3 mb-4 bg-black border border-purple-500 rounded" />
 
-  <button id="drawBtn" onclick="draw()" class="bg-purple-600 px-6 py-3 rounded-xl text-lg glow">
-    Revelar destino ✨
-  </button>
+  <button onclick="draw()" class="w-full bg-purple-600 py-3 rounded-xl glow">Revelar destino ✨</button>
 
-  <div id="loading" class="mt-4 hidden">🔮 Analizando tu energía...</div>
   <div id="result" class="mt-6"></div>
-
-  <div id="cta" class="mt-6 hidden">
-    <p class="mb-2">Desbloquea tu predicción completa:</p>
-    <div id="paypal-button-container"></div>
-  </div>
+  <div id="paypal-button-container" class="mt-6"></div>
 </div>
 
 <script>
-function getZodiacSign(dateString){
-  const date = new Date(dateString);
-  const d = date.getDate();
-  const m = date.getMonth() + 1;
-
-  if((m==3 && d>=21)||(m==4 && d<=19)) return "Aries ♈";
-  if((m==4 && d>=20)||(m==5 && d<=20)) return "Tauro ♉";
-  if((m==5 && d>=21)||(m==6 && d<=20)) return "Géminis ♊";
-  if((m==6 && d>=21)||(m==7 && d<=22)) return "Cáncer ♋";
-  if((m==7 && d>=23)||(m==8 && d<=22)) return "Leo ♌";
-  if((m==8 && d>=23)||(m==9 && d<=22)) return "Virgo ♍";
-  if((m==9 && d>=23)||(m==10 && d<=22)) return "Libra ♎";
-  if((m==10 && d>=23)||(m==11 && d<=21)) return "Escorpio ♏";
-  if((m==11 && d>=22)||(m==12 && d<=21)) return "Sagitario ♐";
-  if((m==12 && d>=22)||(m==1 && d<=19)) return "Capricornio ♑";
-  if((m==1 && d>=20)||(m==2 && d<=18)) return "Acuario ♒";
-  return "Piscis ♓";
-}
-
 let currentSpread = 1;
+function setSpread(n){ currentSpread = n === 3 ? 3 : 1; }
 
-function setSpread(n){
-  // limitar a 1 o 3 cartas
-  currentSpread = n === 3 ? 3 : 1;
-}
-
-// predicciones cortas por carta
-const shortPredictions = [
-  "Alguien piensa en ti ahora mismo.",
-  "Se acerca una oportunidad inesperada.",
-  "Confía en tu intuición hoy.",
-  "Un cambio positivo está cerca.",
-  "Evita decisiones impulsivas.",
-  "Alguien del pasado vuelve.",
-  "Buenas noticias en camino.",
-  "Tu energía está cambiando.",
-  "Se abre un nuevo camino.",
-  "Algo oculto saldrá a la luz."
-];
-
-// imágenes diferentes de tarot
 const tarotImages = [
   "https://images.unsplash.com/photo-1604881991720-f91add269bed?w=400",
   "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=400",
   "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=400",
-  "https://images.unsplash.com/photo-1492724441997-5dc865305da7?w=400",
-  "https://images.unsplash.com/photo-1520975916090-3105956dac38?w=400",
-  "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=400"
+  "https://images.unsplash.com/photo-1520975916090-3105956dac38?w=400"
 ];
+
+const shortPredictions = [
+  "Alguien piensa en ti",
+  "Cambio positivo cerca",
+  "Confía en tu intuición",
+  "Oportunidad inesperada",
+  "Algo oculto saldrá"
+];
+
+function getZodiacSign(dob){
+  const d = new Date(dob);
+  const day = d.getDate();
+  const m = d.getMonth()+1;
+  if((m==3&&day>=21)||(m==4&&day<=19)) return "Aries ♈";
+  return "Tu signo";
+}
 
 function draw(){
   const name = document.getElementById("name").value;
   const dob = document.getElementById("dob").value;
-  const btn = document.getElementById("drawBtn");
 
-  if(!name || !dob){
-    alert("Introduce tu nombre y fecha de nacimiento");
-    return;
-  }
+  if(!name||!dob){ alert("Completa los datos"); return; }
 
   const zodiac = getZodiacSign(dob);
+  let html="";
 
-  btn.classList.add("shuffle");
+  for(let i=0;i<currentSpread;i++){
+    const img = tarotImages[Math.floor(Math.random()*tarotImages.length)];
+    const text = shortPredictions[Math.floor(Math.random()*shortPredictions.length)];
 
-  document.getElementById("loading").classList.remove("hidden");
-  document.getElementById("result").innerHTML = "";
-
-  setTimeout(()=>{
-    btn.classList.remove("shuffle");
-    document.getElementById("loading").classList.add("hidden");
-
-    let cardsHTML = "";
-
-    for(let i=0;i<currentSpread;i++){
-      const shortText = shortPredictions[Math.floor(Math.random()*shortPredictions.length)];
-
-      cardsHTML += `
-      <div class='card relative w-full h-44 mx-auto mb-4'>
-        <div class='card-inner w-full h-full'>
-          <div class='card-front flex items-center justify-center border rounded-xl glow h-full'>🔮</div>
-          <div class='card-back flex flex-col items-center justify-center border rounded-xl glow h-full p-3'>
-            <img src='${tarotImages[Math.floor(Math.random()*tarotImages.length)]}' class='w-full h-20 object-cover rounded mb-2'/>
-            <p class='text-xs opacity-70 mb-1'>${zodiac}</p>
-            <p class='text-sm text-center'>${shortText}</p>
-          </div>
+    html += `
+    <div class="card relative h-44 mb-4">
+      <div class="card-inner">
+        <div class="card-front flex items-center justify-center border rounded-xl glow">🔮</div>
+        <div class="card-back flex flex-col items-center justify-center border rounded-xl glow p-2">
+          <img src="${img}" class="h-20 w-full object-cover rounded mb-2"/>
+          <p class="text-xs">${zodiac}</p>
+          <p class="text-sm text-center">${text}</p>
         </div>
-      </div>`;
-    }
-
-    document.getElementById("result").innerHTML = cardsHTML;
-
-    // flip TODAS las cartas
-    setTimeout(()=>{
-      document.querySelectorAll('.card').forEach((card, index)=>{
-        setTimeout(()=>{
-          card.classList.add('flip');
-        }, index * 200);
-      });
-    },200);
-
-    setTimeout(()=>{
-      document.getElementById("cta").classList.remove("hidden");
-      renderPayPal(name, zodiac);
-    },800);
-
-  },1500);
-}
-
-function generatePrediction(name, zodiac){
-  const predictions = [
-`<p>${name}, como ${zodiac}, estás entrando en una etapa donde todo comienza a tomar sentido...</p>`,
-`<p>${name}, como ${zodiac}, tu energía está cambiando rápidamente...</p>`
-  ];
-
-  return predictions[Math.floor(Math.random() * predictions.length)];
-}
-
-function unlock(name, zodiac){
-  const extra = document.createElement("div");
-  extra.className = "mt-4 p-4 border rounded-xl fade-in text-left leading-relaxed space-y-3";
-  extra.innerHTML = generatePrediction(name, zodiac);
-  document.getElementById("result").appendChild(extra);
-}
-
-function renderPayPal(name, zodiac){
-  const container = document.getElementById("paypal-button-container");
-  container.innerHTML = "";
-
-  // comprobar que PayPal cargó
-  if (typeof paypal === "undefined") {
-    console.error("PayPal no se ha cargado correctamente");
-    container.innerHTML = "<p class='text-red-400'>Error cargando pago. Recarga la página.</p>";
-    return;
+      </div>
+    </div>`;
   }
 
-  paypal.Buttons({
-    style: {
-      layout: 'vertical',
-      color: 'gold',
-      shape: 'rect',
-      label: 'paypal'
-    },
-    createOrder: function(data, actions) {
-      return actions.order.create({
-        purchase_units: [{
-          amount: { value: "4.99" }
-        }]
-      });
-    },
-    onApprove: function(data, actions) {
-      return actions.order.capture().then(function(details) {
-        unlock(name, zodiac);
-      });
-    },
-    onError: function(err) {
-      console.error("Error en PayPal:", err);
-      container.innerHTML = "<p class='text-red-400'>Error en el pago. Inténtalo de nuevo.</p>";
-    }
-  }).render('#paypal-button-container');
-} }]
-    }),
-    onApprove: (data, actions) => actions.order.capture().then(()=> unlock(name, zodiac))
-  }).render('#paypal-button-container');
+  document.getElementById("result").innerHTML = html;
+
+  setTimeout(()=>{
+    document.querySelectorAll(".card").forEach((c,i)=>{
+      setTimeout(()=>c.classList.add("flip"), i*200);
+    });
+  },200);
+
+  renderPayPal(name,zodiac);
+}
+
+function generatePrediction(name,zodiac){
+  return `<p>${name}, como ${zodiac}, tu vida está cambiando profundamente...</p>`;
+}
+
+function unlock(name,zodiac){
+  const div=document.createElement("div");
+  div.className="mt-4 p-4 border rounded text-left";
+  div.innerHTML=generatePrediction(name,zodiac);
+  document.getElementById("result").appendChild(div);
+}
+
+function renderPayPal(name,zodiac){
+  const container=document.getElementById("paypal-button-container");
+  container.innerHTML="";
+
+  const btn=document.createElement("a");
+  btn.href="https://www.paypal.com/ncp/payment/GN4SPT3DEPUY4";
+  btn.target="_blank";
+  btn.className="block text-center bg-yellow-500 text-black py-3 rounded-xl";
+  btn.innerText="Desbloquear predicción (4.99€)";
+
+  container.appendChild(btn);
+
+  btn.addEventListener("click",()=>{
+    setTimeout(()=>unlock(name,zodiac),3000);
+  });
 }
 </script>
 
