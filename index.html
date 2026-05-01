@@ -1,0 +1,159 @@
+import { useState, useEffect } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
+
+const tarotDeck = [
+  "El Loco", "El Mago", "La Sacerdotisa", "La Emperatriz", "El Emperador",
+  "El Hierofante", "Los Enamorados", "El Carro", "La Justicia", "El Ermitaño",
+  "La Rueda", "La Fuerza", "El Colgado", "La Muerte", "La Templanza",
+  "El Diablo", "La Torre", "La Estrella", "La Luna", "El Sol",
+  "El Juicio", "El Mundo"
+];
+
+const deepInterpretations = {
+  amor: "Hay una energía emocional fuerte… alguien piensa en ti más de lo que imaginas.",
+  dinero: "Se abre una oportunidad económica, pero debes actuar rápido.",
+  futuro: "Se avecina un cambio importante que redefinirá tu camino.",
+  general: "Tu situación actual está cambiando, presta atención a las señales."
+};
+
+export default function TarotApp() {
+  const [spread, setSpread] = useState("1");
+  const [mode, setMode] = useState("general");
+  const [cards, setCards] = useState([]);
+  const [premium, setPremium] = useState(false);
+  const [usedToday, setUsedToday] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [users, setUsers] = useState(1287);
+
+  useEffect(() => {
+    const lastUse = localStorage.getItem("lastUse");
+    const today = new Date().toDateString();
+    if (lastUse === today) setUsedToday(true);
+
+    // fake social proof counter
+    const interval = setInterval(() => {
+      setUsers(u => u + Math.floor(Math.random() * 3));
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const drawCards = () => {
+    if (usedToday && !premium) return alert("Solo 1 tirada diaria. Activa premium 🔥");
+
+    setLoading(true);
+
+    setTimeout(() => {
+      let count = spread === "1" ? 1 : spread === "3" ? 3 : 10;
+      let shuffled = [...tarotDeck].sort(() => 0.5 - Math.random());
+      setCards(shuffled.slice(0, count));
+
+      localStorage.setItem("lastUse", new Date().toDateString());
+      setUsedToday(true);
+
+      const audio = new Audio("/mystic.mp3");
+      audio.play();
+
+      setLoading(false);
+    }, 1500);
+  };
+
+  const shareWhatsApp = () => {
+    const text = "🔥 Esta tirada de tarot es brutal, mira la tuya aquí:";
+    window.open(`https://wa.me/?text=${encodeURIComponent(text + " " + window.location.href)}`);
+  };
+
+  const shareTelegram = () => {
+    const text = "🔮 Mira tu tarot aquí:";
+    window.open(`https://t.me/share/url?url=${window.location.href}&text=${encodeURIComponent(text)}`);
+  };
+
+  return (
+    <div className="min-h-screen text-white flex flex-col items-center justify-center p-6 bg-black relative overflow-hidden">
+
+      {/* Fondo tipo galaxia */}
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-900 via-black to-black opacity-80 animate-pulse" />
+
+      <motion.h1
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="text-4xl md:text-6xl font-bold mb-4 z-10 text-center"
+      >
+        Descubre lo que nadie te está diciendo 🔮
+      </motion.h1>
+
+      <p className="text-sm opacity-70 mb-4 z-10">
+        {users.toLocaleString()} personas ya hicieron su tirada hoy
+      </p>
+
+      {/* Selector modo */}
+      <div className="flex gap-2 mb-4 z-10 flex-wrap justify-center">
+        {["general", "amor", "dinero", "futuro"].map(m => (
+          <Button key={m} onClick={() => setMode(m)}>{m}</Button>
+        ))}
+      </div>
+
+      {/* Selector tirada */}
+      <div className="flex gap-2 mb-6 z-10">
+        <Button onClick={() => setSpread("1")}>1 Carta</Button>
+        <Button onClick={() => setSpread("3")}>3 Cartas</Button>
+        <Button onClick={() => setSpread("10")}>Cruz Celta</Button>
+      </div>
+
+      <Card className="bg-black/60 backdrop-blur-xl border border-purple-500 rounded-2xl shadow-2xl w-full max-w-2xl z-10">
+        <CardContent className="p-6 text-center">
+
+          {loading ? (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="mb-6"
+            >
+              🃏 Barajando cartas...
+            </motion.div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-4">
+              {cards.map((c, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ rotateY: 90 }}
+                  animate={{ rotateY: 0 }}
+                  className="p-3 border border-purple-400 rounded-xl"
+                >
+                  <div className="font-bold">{c}</div>
+                  <div className="text-sm opacity-70">
+                    {premium
+                      ? deepInterpretations[mode]
+                      : "Interpretación completa disponible en premium"}
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
+
+          <Button onClick={drawCards} className="mb-3 text-lg">
+            Tirar Cartas 🃏
+          </Button>
+
+          {!premium && (
+            <Button onClick={() => setPremium(true)} className="bg-yellow-500 text-black">
+              Desbloquear lectura completa 🔥
+            </Button>
+          )}
+
+          <div className="flex gap-2 justify-center mt-4 flex-wrap">
+            <Button onClick={shareWhatsApp}>WhatsApp</Button>
+            <Button onClick={shareTelegram}>Telegram</Button>
+          </div>
+
+        </CardContent>
+      </Card>
+
+      <p className="mt-6 text-sm opacity-60 z-10 text-center max-w-md">
+        Solo hoy puedes descubrir algo que cambiará tu situación actual...
+      </p>
+    </div>
+  );
+}
