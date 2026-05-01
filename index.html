@@ -76,13 +76,27 @@ function draw(){
   const zodiac = getZodiacSign(dob);
   let html="";
 
+  // evitar imágenes repetidas en una misma tirada
+  let usedIndexes = [];
+
   for(let i=0;i<currentSpread;i++){
-    const img = tarotImages[Math.floor(Math.random()*tarotImages.length)];
+    let imgIndex;
+    do {
+      imgIndex = Math.floor(Math.random()*tarotImages.length);
+    } while(usedIndexes.includes(imgIndex));
+
+    usedIndexes.push(imgIndex);
+
+    const img = tarotImages[imgIndex];
     const text = shortPredictions[Math.floor(Math.random()*shortPredictions.length)];
 
     html += `
     <div class="bg-black border border-purple-500 rounded-xl p-3 glow">
       <img src="${img}" class="w-full h-32 object-cover rounded-lg mb-2"/>
+      <p class="text-xs opacity-70 text-center">${zodiac}</p>
+      <p class="text-sm text-center">${text}</p>
+    </div>`;
+  }" class="w-full h-32 object-cover rounded-lg mb-2"/>
       <p class="text-xs opacity-70 text-center">${zodiac}</p>
       <p class="text-sm text-center">${text}</p>
     </div>`;
