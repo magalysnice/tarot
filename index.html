@@ -1,159 +1,98 @@
-import { useState, useEffect } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tarot Viral 🔮</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .glow { box-shadow: 0 0 20px rgba(168,85,247,0.6); }
+  </style>
+</head>
+<body class="bg-black text-white flex items-center justify-center min-h-screen relative overflow-hidden">
 
-const tarotDeck = [
-  "El Loco", "El Mago", "La Sacerdotisa", "La Emperatriz", "El Emperador",
-  "El Hierofante", "Los Enamorados", "El Carro", "La Justicia", "El Ermitaño",
-  "La Rueda", "La Fuerza", "El Colgado", "La Muerte", "La Templanza",
-  "El Diablo", "La Torre", "La Estrella", "La Luna", "El Sol",
-  "El Juicio", "El Mundo"
-];
+<!-- Fondo animado -->
+<div class="absolute inset-0 bg-gradient-to-br from-purple-900 via-black to-black animate-pulse opacity-80"></div>
 
-const deepInterpretations = {
-  amor: "Hay una energía emocional fuerte… alguien piensa en ti más de lo que imaginas.",
-  dinero: "Se abre una oportunidad económica, pero debes actuar rápido.",
-  futuro: "Se avecina un cambio importante que redefinirá tu camino.",
-  general: "Tu situación actual está cambiando, presta atención a las señales."
-};
+<div class="text-center max-w-xl p-6 z-10">
+  <h1 class="text-4xl font-bold mb-4">
+    Esto está revelando cosas que nadie esperaba 🔮
+  </h1>
 
-export default function TarotApp() {
-  const [spread, setSpread] = useState("1");
-  const [mode, setMode] = useState("general");
-  const [cards, setCards] = useState([]);
-  const [premium, setPremium] = useState(false);
-  const [usedToday, setUsedToday] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [users, setUsers] = useState(1287);
+  <p id="users" class="opacity-70 mb-2"></p>
+  <p class="text-sm opacity-50 mb-4">Solo hoy: acceso limitado</p>
 
-  useEffect(() => {
-    const lastUse = localStorage.getItem("lastUse");
-    const today = new Date().toDateString();
-    if (lastUse === today) setUsedToday(true);
+  <button onclick="draw()" class="bg-purple-600 px-6 py-3 rounded-xl text-lg glow hover:scale-105 transition">
+    Tirar Carta 🃏
+  </button>
 
-    // fake social proof counter
-    const interval = setInterval(() => {
-      setUsers(u => u + Math.floor(Math.random() * 3));
-    }, 3000);
+  <div id="loading" class="mt-4 hidden">🃏 Barajando cartas...</div>
 
-    return () => clearInterval(interval);
-  }, []);
+  <div id="result" class="mt-6"></div>
 
-  const drawCards = () => {
-    if (usedToday && !premium) return alert("Solo 1 tirada diaria. Activa premium 🔥");
+  <div id="cta" class="mt-6 hidden">
+    <button onclick="unlock()" class="bg-yellow-500 text-black px-6 py-3 rounded-xl glow">
+      Desbloquear significado completo 🔥
+    </button>
+  </div>
 
-    setLoading(true);
+  <div class="mt-6 flex gap-2 justify-center">
+    <button onclick="shareWA()" class="bg-green-500 px-4 py-2 rounded-lg">WhatsApp</button>
+    <button onclick="shareTG()" class="bg-blue-500 px-4 py-2 rounded-lg">Telegram</button>
+  </div>
 
-    setTimeout(() => {
-      let count = spread === "1" ? 1 : spread === "3" ? 3 : 10;
-      let shuffled = [...tarotDeck].sort(() => 0.5 - Math.random());
-      setCards(shuffled.slice(0, count));
+  <p class="mt-6 text-sm opacity-60">
+    Más de 90% de personas vuelven a consultar...
+  </p>
+</div>
 
-      localStorage.setItem("lastUse", new Date().toDateString());
-      setUsedToday(true);
+<script>
+const deck = ["El Loco","El Mago","La Sacerdotisa","El Sol","La Luna"];
 
-      const audio = new Audio("/mystic.mp3");
-      audio.play();
+let users = 1243;
+setInterval(()=>{
+  users += Math.floor(Math.random()*3);
+  document.getElementById("users").innerText = users + " personas ya hicieron su tirada hoy";
+},2000);
 
-      setLoading(false);
-    }, 1500);
-  };
+function draw(){
+  document.getElementById("loading").classList.remove("hidden");
+  document.getElementById("result").innerHTML = "";
+  document.getElementById("cta").classList.add("hidden");
 
-  const shareWhatsApp = () => {
-    const text = "🔥 Esta tirada de tarot es brutal, mira la tuya aquí:";
-    window.open(`https://wa.me/?text=${encodeURIComponent(text + " " + window.location.href)}`);
-  };
+  setTimeout(()=>{
+    const card = deck[Math.floor(Math.random()*deck.length)];
 
-  const shareTelegram = () => {
-    const text = "🔮 Mira tu tarot aquí:";
-    window.open(`https://t.me/share/url?url=${window.location.href}&text=${encodeURIComponent(text)}`);
-  };
+    document.getElementById("loading").classList.add("hidden");
 
-  return (
-    <div className="min-h-screen text-white flex flex-col items-center justify-center p-6 bg-black relative overflow-hidden">
-
-      {/* Fondo tipo galaxia */}
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-900 via-black to-black opacity-80 animate-pulse" />
-
-      <motion.h1
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-4xl md:text-6xl font-bold mb-4 z-10 text-center"
-      >
-        Descubre lo que nadie te está diciendo 🔮
-      </motion.h1>
-
-      <p className="text-sm opacity-70 mb-4 z-10">
-        {users.toLocaleString()} personas ya hicieron su tirada hoy
-      </p>
-
-      {/* Selector modo */}
-      <div className="flex gap-2 mb-4 z-10 flex-wrap justify-center">
-        {["general", "amor", "dinero", "futuro"].map(m => (
-          <Button key={m} onClick={() => setMode(m)}>{m}</Button>
-        ))}
+    document.getElementById("result").innerHTML = `
+      <div class='mt-4 p-4 border rounded-xl glow'>
+        <h2 class='text-xl font-bold'>${card}</h2>
+        <p class='opacity-70'>Hay algo importante que no estás viendo...</p>
       </div>
+    `;
 
-      {/* Selector tirada */}
-      <div className="flex gap-2 mb-6 z-10">
-        <Button onClick={() => setSpread("1")}>1 Carta</Button>
-        <Button onClick={() => setSpread("3")}>3 Cartas</Button>
-        <Button onClick={() => setSpread("10")}>Cruz Celta</Button>
-      </div>
-
-      <Card className="bg-black/60 backdrop-blur-xl border border-purple-500 rounded-2xl shadow-2xl w-full max-w-2xl z-10">
-        <CardContent className="p-6 text-center">
-
-          {loading ? (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="mb-6"
-            >
-              🃏 Barajando cartas...
-            </motion.div>
-          ) : (
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-4">
-              {cards.map((c, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ rotateY: 90 }}
-                  animate={{ rotateY: 0 }}
-                  className="p-3 border border-purple-400 rounded-xl"
-                >
-                  <div className="font-bold">{c}</div>
-                  <div className="text-sm opacity-70">
-                    {premium
-                      ? deepInterpretations[mode]
-                      : "Interpretación completa disponible en premium"}
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          )}
-
-          <Button onClick={drawCards} className="mb-3 text-lg">
-            Tirar Cartas 🃏
-          </Button>
-
-          {!premium && (
-            <Button onClick={() => setPremium(true)} className="bg-yellow-500 text-black">
-              Desbloquear lectura completa 🔥
-            </Button>
-          )}
-
-          <div className="flex gap-2 justify-center mt-4 flex-wrap">
-            <Button onClick={shareWhatsApp}>WhatsApp</Button>
-            <Button onClick={shareTelegram}>Telegram</Button>
-          </div>
-
-        </CardContent>
-      </Card>
-
-      <p className="mt-6 text-sm opacity-60 z-10 text-center max-w-md">
-        Solo hoy puedes descubrir algo que cambiará tu situación actual...
-      </p>
-    </div>
-  );
+    document.getElementById("cta").classList.remove("hidden");
+  }, 1500);
 }
+
+function unlock(){
+  document.getElementById("result").innerHTML += `
+    <div class='mt-4 p-4 border rounded-xl'>
+      <p class='text-sm'>Esta carta indica un cambio fuerte en tu situación actual. Alguien cercano influye más de lo que crees.</p>
+    </div>
+  `;
+}
+
+function shareWA(){
+  const text = "🔥 Esto me dejó loco... prueba tu tirada:";
+  window.open(`https://wa.me/?text=${encodeURIComponent(text + " " + location.href)}`);
+}
+
+function shareTG(){
+  window.open(`https://t.me/share/url?url=${location.href}`);
+}
+</script>
+
+</body>
+</html>
