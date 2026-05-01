@@ -5,23 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tarot Premium 🔮</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    .glow { box-shadow: 0 0 20px rgba(168,85,247,0.6); }
-    .card { perspective: 1000px; }
-    .card-inner { transition: transform 0.8s; transform-style: preserve-3d; }
-    .card.flip .card-inner { transform: rotateY(180deg); }
-    .card-front, .card-back {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      backface-visibility: hidden;
-    }
-    .card-back { transform: rotateY(180deg); }
-  </style>
 </head>
-<body class="bg-black text-white min-h-screen overflow-y-auto">
+<body class="bg-black text-white min-h-screen">
 
-<div class="max-w-md mx-auto p-4 pb-20">
+<div class="max-w-md mx-auto p-4">
   <h1 class="text-2xl font-bold text-center mb-2">🔮 Nadie esperaba esto…</h1>
   <p class="text-center text-sm opacity-70 mb-4">Descubre lo que se oculta en tu destino</p>
 
@@ -31,10 +18,11 @@
   </div>
 
   <input id="name" placeholder="Nombre completo" class="w-full p-3 mb-2 bg-black border border-purple-500 rounded" />
+
   <label class="text-xs opacity-70">Fecha de nacimiento</label>
   <input id="dob" type="date" class="w-full p-3 mb-4 bg-black border border-purple-500 rounded" />
 
-  <button onclick="draw()" class="w-full bg-purple-600 py-3 rounded-xl glow">Revelar destino ✨</button>
+  <button onclick="draw()" class="w-full bg-purple-600 py-3 rounded-xl">Revelar destino ✨</button>
 
   <div id="result" class="mt-6 space-y-4"></div>
   <div id="paypal-button-container" class="mt-6"></div>
@@ -48,10 +36,7 @@ const tarotImages = [
   "https://images.unsplash.com/photo-1604881991720-f91add269bed?w=400",
   "https://images.unsplash.com/photo-1492724441997-5dc865305da7?w=400",
   "https://images.unsplash.com/photo-1520975916090-3105956dac38?w=400",
-  "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=400",
-  "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=400",
-  "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=400",
-  "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=400"
+  "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=400"
 ];
 
 const shortPredictions = [
@@ -63,54 +48,42 @@ const shortPredictions = [
 ];
 
 function getZodiacSign(dob){
+  if(!dob) return "Tu signo";
   const d = new Date(dob);
   const day = d.getDate();
   const m = d.getMonth()+1;
   if((m==3&&day>=21)||(m==4&&day<=19)) return "Aries ♈";
+  if((m==4&&day>=20)||(m==5&&day<=20)) return "Tauro ♉";
   return "Tu signo";
 }
 
 function draw(){
-  const name = document.getElementById("name").value;
+  const name = document.getElementById("name").value.trim();
   const dob = document.getElementById("dob").value;
 
-  if(!name||!dob){ alert("Completa los datos"); return; }
+  if(!name || !dob){
+    alert("Introduce nombre y fecha correctamente");
+    return;
+  }
 
   const zodiac = getZodiacSign(dob);
-  let html="";
-
-  // evitar imágenes repetidas en una misma tirada
-  let usedIndexes = [];
-
-  // si hay menos imágenes que cartas, permitir repetir pero no consecutivas
-  const allowRepeat = tarotImages.length < currentSpread;
+  let html = "";
 
   for(let i=0;i<currentSpread;i++){
-    let imgIndex;
-    do {
-      imgIndex = Math.floor(Math.random()*tarotImages.length);
-    } while(usedIndexes.includes(imgIndex));
-
-    usedIndexes.push(imgIndex);
-
-    const img = tarotImages[imgIndex];
+    const img = tarotImages[Math.floor(Math.random()*tarotImages.length)];
     const text = shortPredictions[Math.floor(Math.random()*shortPredictions.length)];
 
     html += `
-    <div class="bg-black border border-purple-500 rounded-xl p-3 glow">
-      <img src="${img}" class="w-full h-32 object-cover rounded-lg mb-2"/>
-      <p class="text-xs opacity-70 text-center">${zodiac}</p>
-      <p class="text-sm text-center">${text}</p>
-    </div>`;
-  }" class="w-full h-32 object-cover rounded-lg mb-2"/>
-      <p class="text-xs opacity-70 text-center">${zodiac}</p>
+    <div class="bg-black border border-purple-500 rounded-xl p-3">
+      <img src="${img}" class="w-full h-32 object-cover rounded mb-2"/>
+      <p class="text-xs text-center opacity-70">${zodiac}</p>
       <p class="text-sm text-center">${text}</p>
     </div>`;
   }
 
   document.getElementById("result").innerHTML = html;
 
-  renderPayPal(name,zodiac);
+  renderPayPal(name, zodiac);
 }
 
 function generatePrediction(name,zodiac){
@@ -119,7 +92,7 @@ function generatePrediction(name,zodiac){
 
 function unlock(name,zodiac){
   const div=document.createElement("div");
-  div.className="mt-4 p-4 border border-white rounded text-left";
+  div.className="mt-4 p-4 border border-white rounded";
   div.innerHTML=generatePrediction(name,zodiac);
   document.getElementById("result").appendChild(div);
 }
@@ -131,14 +104,14 @@ function renderPayPal(name,zodiac){
   const btn=document.createElement("a");
   btn.href="https://www.paypal.com/ncp/payment/GN4SPT3DEPUY4";
   btn.target="_blank";
-  btn.className="flex items-center justify-center gap-2 bg-yellow-500 text-black py-3 rounded-xl font-bold";
-  btn.innerHTML=`<img src="https://www.paypalobjects.com/webstatic/icon/pp258.png" class="h-5"/> Pagar con PayPal`;
+  btn.className="block text-center bg-yellow-500 text-black py-3 rounded-xl font-bold";
+  btn.innerText="Pagar con PayPal";
 
   container.appendChild(btn);
 
-  btn.addEventListener("click",()=>{
+  btn.onclick = () => {
     setTimeout(()=>unlock(name,zodiac),3000);
-  });
+  };
 }
 </script>
 
